@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tom Runner</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#69c8ff;
+}
+
+/* SKY */
+#sky{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:linear-gradient(
+    #4dbfff 0%,
+    #bcecff 65%,
+    #eaffff 100%
+  );
+}
+
+.cloud{
+  position:fixed;
+  width:110px;
+  height:35px;
+  background:#fff;
+  border-radius:40px;
+  opacity:.75;
+  z-index:1;
+  animation:cloudMove 18s linear infinite;
+}
+
+.cloud:before,
+.cloud:after{
+  content:"";
+  position:absolute;
+  background:#fff;
+  border-radius:50%;
+}
+
+.cloud:before{
+  width:50px;
+  height:50px;
+  left:18px;
+  top:-22px;
+}
+
+.cloud:after{
+  width:65px;
+  height:65px;
+  right:12px;
+  top:-32px;
+}
+
+.cloud1{
+  top:90px;
+  left:100%;
+}
+
+.cloud2{
+  top:180px;
+  left:130%;
+  transform:scale(.7);
+  animation-duration:25s;
+}
+
+@keyframes cloudMove{
+  from{transform:translateX(0);}
+  to{transform:translateX(-150vw);}
+}
+
+/* MOUNTAINS */
+#mountains{
+  position:fixed;
+  left:0;
+  bottom:100px;
+  width:200%;
+  height:180px;
+  z-index:2;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 45%,
+      #72b37a 45%,
+      #72b37a 60%,
+      transparent 60%
+    );
+  background-size:260px 180px;
+  animation:mountainMove 12s linear infinite;
+}
+
+@keyframes mountainMove{
+  from{transform:translateX(0);}
+  to{transform:translateX(-260px);}
+}
+
+/* TOP UI */
+#ui{
+  position:fixed;
+  top:calc(10px + env(safe-area-inset-top,0px));
+  left:12px;
+  z-index:60;
+  color:#fff;
+  text-shadow:2px 2px 3px #222;
+}
+
+#score{
+  font-size:22px;
+  font-weight:bold;
+}
+
+#highScore{
+  font-size:17px;
+  margin-top:3px;
+}
+
+#lives{
+  font-size:20px;
+  margin-top:3px;
+}
+
+#level{
+  font-size:16px;
+  margin-top:3px;
+}
+
+#speedBox{
+  position:fixed;
+  top:calc(12px + env(safe-area-inset-top,0px));
+  right:110px;
+  z-index:60;
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  text-shadow:2px 2px 3px #222;
+}
+
+/* PAUSE */
+#pauseBtn{
+  position:fixed;
+  top:calc(10px + env(safe-area-inset-top,0px));
+  right:12px;
+  width:88px;
+  height:40px;
+  z-index:70;
+  border:0;
+  border-radius:22px;
+  background:rgba(0,0,0,.55);
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  touch-action:none;
+}
+
+#pauseBtn:active{
+  transform:scale(.92);
+}
+
+/* GROUND */
+#ground{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:100px;
+  background:#3caf3c;
+  border-top:7px solid #267526;
+  z-index:5;
+}
+
+/* ROAD */
+#road{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:55px;
+  background:#555;
+  z-index:6;
+}
+
+.roadLine{
+  position:absolute;
+  width:90px;
+  height:7px;
+  background:#fff;
+  bottom:25px;
+  animation:roadMove .8s linear infinite;
+}
+
+.line1{left:0}
+.line2{left:120px}
+.line3{left:240px}
+.line4{left:360px}
+.line5{left:480px}
+.line6{left:600px}
+
+@keyframes roadMove{
+  from{transform:translateX(0);}
+  to{transform:translateX(-120px);}
+}
+
+/* CHARACTER */
+#character{
+  position:fixed;
+  left:80px;
+  bottom:100px;
+  width:55px;
+  height:110px;
+  z-index:30;
+}
+
+.head{
+  position:absolute;
+  top:0;
+  left:9px;
+  width:38px;
+  height:38px;
+  background:#ffd09b;
+  border:2px solid #333;
+  border-radius:50%;
+}
+
+.body{
+  position:absolute;
+  top:36px;
+  left:15px;
+  width:28px;
+  height:40px;
+  background:#1976d2;
+  border-radius:8px;
+}
+
+.arm{
+  position:absolute;
+  top:40px;
+  width:7px;
+  height:40px;
+  background:#ffd09b;
+  border-radius:10px;
+  transform-origin:top center;
+}
+
+.leftArm{
+  left:9px;
+  animation:arm1 .25s infinite alternate;
+}
+
+.rightArm{
+  right:9px;
+  animation:arm2 .25s infinite alternate;
+}
+
+@keyframes arm1{
+  from{transform:rotate(28deg);}
+  to{transform:rotate(-28deg);}
+}
+
+@keyframes arm2{
+  from{transform:rotate(-28deg);}
+  to{transform:rotate(28deg);}
+}
+
+.leg{
+  position:absolute;
+  top:72px;
+  width:9px;
+  height:40px;
+  background:#222;
+  border-radius:10px;
+  transform-origin:top center;
+}
+
+.leftLeg{
+  left:15px;
+  animation:leg1 .25s infinite alternate;
+}
+
+.rightLeg{
+  right:15px;
+  animation:leg2 .25s infinite alternate;
+}
+
+@keyframes leg1{
+  from{transform:rotate(-25deg);}
+  to{transform:rotate(25deg);}
+}
+
+@keyframes leg2{
+  from{transform:rotate(25deg);}
+  to{transform:rotate(-25deg);}
+}
+
+.hitFlash{
+  animation:hitFlash .12s infinite alternate;
+}
+
+@keyframes hitFlash{
+  from{opacity:.2;}
+  to{opacity:1;}
+}
+
+/* COIN */
+.coin{
+  position:fixed;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:gold;
+  border:4px solid #d99a00;
+  box-shadow:
+    0 0 8px gold,
+    0 0 18px gold;
+  z-index:25;
+  animation:coinSpin .5s linear infinite;
+}
+
+.coin::after{
+  content:"★";
+  position:absolute;
+  left:5px;
+  top:0;
+  color:#fff;
+  font-size:17px;
+}
+
+@keyframes coinSpin{
+  0%{transform:scaleX(1);}
+  50%{transform:scaleX(.35);}
+  100%{transform:scaleX(1);}
+}
+
+/* OBSTACLES */
+.obstacle{
+  position:fixed;
+  z-index:25;
+}
+
+.block{
+  width:42px;
+  height:58px;
+  background:#8b4513;
+  border:4px solid #572a0a;
+  border-radius:7px;
+}
+
+.spike{
+  width:46px;
+  height:46px;
+  background:#444;
+  clip-path:polygon(
+    50% 0%,
+    100% 100%,
+    0% 100%
+  );
+}
+
+.rock{
+  width:55px;
+  height:45px;
+  background:#666;
+  border:4px solid #444;
+  border-radius:55% 45% 45% 50%;
+}
+
+.wall{
+  width:72px;
+  height:65px;
+  background:#a52a2a;
+  border:5px solid #661111;
+  border-radius:5px;
+}
+
+.barrel{
+  width:48px;
+  height:55px;
+  background:#d88b20;
+  border:5px solid #784700;
+  border-radius:12px;
+}
+
+.upper{
+  width:62px;
+  height:48px;
+  background:#663399;
+  border:4px solid #3d1c5c;
+  border-radius:8px;
+}
+
+/* JUMP */
+#jumpBtn{
+  position:fixed;
+  right:20px;
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  width:105px;
+  height:68px;
+  border:0;
+  border-radius:35px;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  font-size:20px;
+  font-weight:bold;
+  z-index:70;
+  touch-action:none;
+}
+
+#jumpBtn:active{
+  transform:scale(.9);
+}
+
+/* START */
+#startScreen{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:
+    linear-gradient(
+      rgba(0,0,0,.55),
+      rgba(0,0,0,.75)
+    );
+  color:#fff;
+  text-align:center;
+  padding-top:18vh;
+}
+
+#startScreen h1{
+  font-size:45px;
+  margin:0;
+  text-shadow:3px 3px 4px #000;
+}
+
+#startScreen p{
+  font-size:18px;
+}
+
+#startBtn{
+  margin-top:20px;
+  padding:15px 40px;
+  border:0;
+  border-radius:30px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* PAUSE SCREEN */
+#pauseScreen{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:150;
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  text-align:center;
+  padding-top:32vh;
+}
+
+#pauseScreen h1{
+  font-size:42px;
+}
+
+#resumeBtn{
+  padding:14px 30px;
+  border:0;
+  border-radius:12px;
+  font-size:20px;
+}
+
+/* GAME OVER */
+#gameOver{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:180;
+  background:rgba(0,0,0,.8);
+  color:#fff;
+  text-align:center;
+  padding-top:24vh;
+}
+
+#gameOver h1{
+  font-size:44px;
+  margin:0 0 10px;
+}
+
+#finalScore{
+  font-size:23px;
+}
+
+#bestScore{
+  font-size:20px;
+}
+
+#newRecord{
+  display:none;
+  font-size:21px;
+}
+
+#restart{
+  padding:14px 28px;
+  border:0;
+  border-radius:12px;
+  font-size:20px;
+}
+
+@media(max-height:600px){
+  #startScreen{
+    padding-top:10vh;
+  }
+
+  #gameOver{
+    padding-top:15vh;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="sky"></div>
+
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<div id="mountains"></div>
+
+<div id="ui">
+  <div id="score">Score: 0</div>
+  <div id="highScore">🏆 High Score: 0</div>
+  <div id="lives">❤️ ❤️ ❤️</div>
+  <div id="level">Level: 1</div>
+</div>
+
+<div id="speedBox">⚡ Speed: 3</div>
+
+<button id="pauseBtn">⏸ PAUSE</button>
+
+<div id="ground"></div>
+
+<div id="road">
+  <div class="roadLine line1"></div>
+  <div class="roadLine line2"></div>
+  <div class="roadLine line3"></div>
+  <div class="roadLine line4"></div>
+  <div class="roadLine line5"></div>
+  <div class="roadLine line6"></div>
+</div>
+
+<!-- CHARACTER -->
+<div id="character">
+  <div class="head"></div>
+  <div class="body"></div>
+  <div class="arm leftArm"></div>
+  <div class="arm rightArm"></div>
+  <div class="leg leftLeg"></div>
+  <div class="leg rightLeg"></div>
+</div>
+
+<button id="jumpBtn">JUMP</button>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <h1>🏃 RUNNER</h1>
+
+  <p>Collect coins • Avoid obstacles</p>
+
+  <p>
+    Double Jump available
+    (Tap, Space, or ↑)
+  </p>
+
+  <button id="startBtn">
+    ▶ START GAME
+  </button>
+</div>
+
+<!-- PAUSE -->
+<div id="pauseScreen">
+  <h1>⏸ PAUSED</h1>
+
+  <button id="resumeBtn">
+    ▶ RESUME
+  </button>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameOver">
+  <h1>GAME OVER</h1>
+
+  <p id="finalScore"></p>
+
+  <p id="bestScore"></p>
+
+  <p id="newRecord">
+    🏆 NEW RECORD!
+  </p>
+
+  <button id="restart">
+    🔄 PLAY AGAIN
+  </button>
+</div>
+
+<script>
+
+/* ELEMENTS */
+
+const character =
+document.getElementById("character");
+
+const jumpBtn =
+document.getElementById("jumpBtn");
+
+const pauseBtn =
+document.getElementById("pauseBtn");
+
+const pauseScreen =
+document.getElementById("pauseScreen");
+
+const resumeBtn =
+document.getElementById("resumeBtn");
+
+const startScreen =
+document.getElementById("startScreen");
+
+const startBtn =
+document.getElementById("startBtn");
+
+const gameOverEl =
+document.getElementById("gameOver");
+
+const restartBtn =
+document.getElementById("restart");
+
+const scoreText =
+document.getElementById("score");
+
+const highScoreText =
+document.getElementById("highScore");
+
+const livesText =
+document.getElementById("lives");
+
+const levelText =
+document.getElementById("level");
+
+const speedText =
+document.getElementById("speedBox");
+
+const finalScore =
+document.getElementById("finalScore");
+
+const bestScore =
+document.getElementById("bestScore");
+
+const newRecord =
+document.getElementById("newRecord");
+
+
+/* GAME STATE */
+
+let gameRunning=false;
+
+let paused=false;
+
+let score=0;
+
+let lives=3;
+
+let gameSpeed=3;
+
+let level=1;
+
+let invincible=false;
+
+let animationStarted=false;
+
+let lastTime=0;
+
+
+/* HIGH SCORE */
+
+function loadHighScore(){
+
+  try{
+    return Number(
+      localStorage.getItem(
+        "runnerHighScore"
+      )
+    ) || 0;
+
+  }catch(e){
+
+    return 0;
+
+  }
+}
+
+function saveHighScore(v){
+
+  try{
+
+    localStorage.setItem(
+      "runnerHighScore",
+      v
+    );
+
+  }catch(e){}
+
+}
+
+let highScore=loadHighScore();
+
+highScoreText.innerText=
+"🏆 High Score: "+highScore;
+
+
+/* PHYSICS */
+
+let playerY=0;
+
+let velocityY=0;
+
+const gravity=.55;
+
+const jumpPower=12;
+
+const groundY=0;
+
+let jumpsUsed=0;
+
+const CHAR_LEFT=80;
+
+const CHAR_RIGHT=135;
+
+const CHAR_HEIGHT=110;
+
+const GROUND_TOP=100;
+
+
+/* AUDIO */
+
+let audioContext=null;
+
+function initAudio(){
+
+  if(!audioContext){
+
+    try{
+
+      audioContext=
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+    }catch(e){}
+
+  }
+
+}
+
+function sound(
+  freq,
+  dur,
+  type="sine"
+){
+
+  if(!audioContext) return;
+
+  const osc=
+  audioContext.createOscillator();
+
+  const gain=
+  audioContext.createGain();
+
+  osc.type=type;
+
+  osc.frequency.value=freq;
+
+  gain.gain.setValueAtTime(
+    .08,
+    audioContext.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audioContext.currentTime+dur
+  );
+
+  osc.connect(gain);
+
+  gain.connect(
+    audioContext.destination
+  );
+
+  osc.start();
+
+  osc.stop(
+    audioContext.currentTime+dur
+  );
+}
+
+
+/* JUMP */
+
+function jump(){
+
+  if(!gameRunning || paused)
+    return;
+
+  if(jumpsUsed<2){
+
+    velocityY=jumpPower;
+
+    jumpsUsed++;
+
+    sound(
+      520,
+      .12,
+      "square"
+    );
+
+  }
+
+}
+
+jumpBtn.addEventListener(
+  "pointerdown",
+  function(e){
+
+    e.preventDefault();
+
+    jump();
+
+  }
+);
+
+
+/* KEYBOARD */
+
+window.addEventListener(
+  "keydown",
+  function(e){
+
+    if(
+      e.code==="Space" ||
+      e.code==="ArrowUp"
+    ){
+
+      e.preventDefault();
+
+      if(
+        startScreen.style.display!=="none" &&
+        !gameRunning
+      ){
+
+        startGame();
+
+      }
+
+      else if(
+        gameOverEl.style.display==="block"
+      ){
+
+        startGame();
+
+      }
+
+      else{
+
+        jump();
+
+      }
+
+    }
+
+    if(
+      e.code==="KeyP" ||
+      e.code==="Escape"
+    ){
+
+      togglePause();
+
+    }
+
+  }
+);
+
+
+/* RECT */
+
+function getPlayerRect(){
+
+  const bottom=
+    GROUND_TOP+playerY;
+
+  return{
+
+    left:CHAR_LEFT,
+
+    right:CHAR_RIGHT,
+
+    bottom:bottom,
+
+    top:bottom+CHAR_HEIGHT
+
+  };
+
+}
+
+function getElRect(el){
+
+  const left=
+    parseFloat(el.style.left);
+
+  const width=
+    el.offsetWidth;
+
+  const bottom=
+    parseFloat(el.style.bottom);
+
+  const height=
+    el.offsetHeight;
+
+  return{
+
+    left:left,
+
+    right:left+width,
+
+    bottom:bottom,
+
+    top:bottom+height
+
+  };
+
+}
+
+function overlap(a,b){
+
+  return(
+    a.left<b.right &&
+    a.right>b.left &&
+    a.bottom<b.top &&
+    a.top>b.bottom
+  );
+
+}
+
+
+/* COIN */
+
+function createCoin(){
+
+  const c=
+  document.createElement("div");
+
+  c.className="coin";
+
+  c.style.left=
+    (window.innerWidth+100)+"px";
+
+  const heights=[
+    115,
+    120,
+    145,
+    170
+  ];
+
+  c.style.bottom=
+    heights[
+      Math.floor(
+        Math.random()*heights.length
+      )
+    ]+"px";
+
+  document.body.appendChild(c);
+
+  return c;
+
+}
+
+let coin=null;
+
+
+/* OBSTACLES */
+
+const obstacleTypes=[
+  "block",
+  "spike",
+  "rock",
+  "wall",
+  "barrel"
+];
+
+function createObstacle(){
+
+  const o=
+  document.createElement("div");
+
+  o.className="obstacle";
+
+  let upperChance=
+    Math.min(
+      .20+level*.015,
+      .35
+    );
+
+  if(Math.random()<upperChance){
+
+    o.classList.add("upper");
+
+    o.dataset.type="upper";
+
+    o.style.bottom="275px";
+
+  }
+
+  else{
+
+    let type=
+      obstacleTypes[
+        Math.floor(
+          Math.random()*
+          obstacleTypes.length
+        )
+      ];
+
+    o.classList.add(type);
+
+    o.dataset.type="lower";
+
+    o.style.bottom="100px";
+
+  }
+
+  /*
+    Minimum distance changed slightly
+    so obstacles don't appear too close.
+  */
+
+  const minDistance=
+    500+Math.random()*500;
+
+  o.style.left=
+    (window.innerWidth+
+     minDistance)+"px";
+
+  document.body.appendChild(o);
+
+  return o;
+
+}
+
+let obstacle=null;
+
+let obstacleHit=false;
+
+
+/* EXTRA OBSTACLES */
+
+let extraObstacles=[];
+
+let extraSpawnTimer=null;
+
+function createExtraObstacle(){
+
+  if(
+    !gameRunning ||
+    paused
+  ){
+
+    return;
+
+  }
+
+  const o=
+  document.createElement("div");
+
+  let type=
+    obstacleTypes[
+      Math.floor(
+        Math.random()*
+        obstacleTypes.length
+      )
+    ];
+
+  o.className=
+    "obstacle "+type;
+
+  o.dataset.type="lower";
+
+  o.dataset.hit="0";
+
+  o.style.bottom="100px";
+
+  o.style.left=
+    (window.innerWidth+
+     250+
+     Math.random()*300)+"px";
+
+  document.body.appendChild(o);
+
+  extraObstacles.push(o);
+
+}
+
+
+/* START GAME */
+
+function startGame(){
+
+  initAudio();
+
+  if(
+    audioContext &&
+    audioContext.state==="suspended"
+  ){
+
+    audioContext.resume();
+
+  }
+
+  /*
+    IMPORTANT:
+    Previous high score রাখা হচ্ছে.
+  */
+
+  gameRunning=true;
+
+  paused=false;
+
+  score=0;
+
+  lives=3;
+
+  gameSpeed=3;
+
+  level=1;
+
+  playerY=0;
+
+  velocityY=0;
+
+  jumpsUsed=0;
+
+  invincible=false;
+
+  obstacleHit=false;
+
+
+  scoreText.innerText=
+    "Score: 0";
+
+  livesText.innerText=
+    "❤️ ❤️ ❤️";
+
+  levelText.innerText=
+    "Level: 1";
+
+  speedText.innerText=
+    "⚡ Speed: 3";
+
+
+  gameOverEl.style.display=
+    "none";
+
+  pauseScreen.style.display=
+    "none";
+
+  startScreen.style.display=
+    "none";
+
+  pauseBtn.innerText=
+    "⏸ PAUSE";
+
+
+  /* CLEAN OLD OBJECTS */
+
+  if(coin){
+
+    coin.remove();
+
+    coin=null;
+
+  }
+
+  if(obstacle){
+
+    obstacle.remove();
+
+    obstacle=null;
+
+  }
+
+  extraObstacles.forEach(
+    function(o){
+
+      if(o.parentNode)
+        o.remove();
+
+    }
+  );
+
+  extraObstacles=[];
+
+  if(extraSpawnTimer){
+
+    clearTimeout(
+      extraSpawnTimer
+    );
+
+    extraSpawnTimer=null;
+
+  }
+
+
+  /* CREATE NEW */
+
+  coin=createCoin();
+
+  obstacle=createObstacle();
+
+
+  if(!animationStarted){
+
+    animationStarted=true;
+
+    lastTime=
+      performance.now();
+
+    requestAnimationFrame(
+      gameLoop
+    );
+
+  }
+
+}
+
+startBtn.addEventListener(
+  "click",
+  startGame
+);
+
+restartBtn.addEventListener(
+  "click",
+  startGame
+);
+
+
+/* PAUSE */
+
+function togglePause(){
+
+  if(!gameRunning)
+    return;
+
+  paused=!paused;
+
+  pauseScreen.style.display=
+    paused ? "block" : "none";
+
+  pauseBtn.innerText=
+    paused
+      ? "▶ RESUME"
+      : "⏸ PAUSE";
+
+}
+
+pauseBtn.addEventListener(
+  "pointerdown",
+  function(e){
+
+    e.preventDefault();
+
+    togglePause();
+
+  }
+);
+
+resumeBtn.addEventListener(
+  "click",
+  togglePause
+);
+
+
+/* DIFFICULTY */
+
+function updateDifficulty(){
+
+  /*
+    Level every 10 score.
+    Maximum speed = 7.
+  */
+
+  level=
+    1+
+    Math.floor(score/10);
+
+  gameSpeed=
+    3+
+    (level-1)*.35;
+
+  if(gameSpeed>7)
+    gameSpeed=7;
+
+  levelText.innerText=
+    "Level: "+level;
+
+  speedText.innerText=
+    "⚡ Speed: "+
+    gameSpeed.toFixed(1);
+
+}
+
+
+/* HIGH SCORE */
+
+function updateHighScore(){
+
+  if(score>highScore){
+
+    highScore=score;
+
+    saveHighScore(
+      highScore
+    );
+
+    highScoreText.innerText=
+      "🏆 High Score: "+
+      highScore;
+
+  }
+
+}
+
+
+/* LIVES */
+
+function updateLives(){
+
+  if(lives===3){
+
+    livesText.innerText=
+      "❤️ ❤️ ❤️";
+
+  }
+
+  else if(lives===2){
+
+    livesText.innerText=
+      "❤️ ❤️ 🖤";
+
+  }
+
+  else if(lives===1){
+
+    livesText.innerText=
+      "❤️ 🖤 🖤";
+
+  }
+
+  else{
+
+    livesText.innerText=
+      "🖤 🖤 🖤";
+
+  }
+
+}
+
+
+/* DAMAGE */
+
+function takeDamage(){
+
+  if(invincible)
+    return;
+
+  lives--;
+
+  updateLives();
+
+  sound(
+    120,
+    .25,
+    "sawtooth"
+  );
+
+  character.classList.add(
+    "hitFlash"
+  );
+
+  invincible=true;
+
+  setTimeout(
+    function(){
+
+      character.classList.remove(
+        "hitFlash"
+      );
+
+      invincible=false;
+
+    },
+    1000
+  );
+
+  if(lives<=0){
+
+    endGame();
+
+  }
+
+}
+
+
+/* COIN UPDATE */
+
+function updateCoin(dt){
+
+  if(!coin)
+    return;
+
+  let x=
+    parseFloat(
+      coin.style.left
+    );
+
+  x-=gameSpeed*dt;
+
+  coin.style.left=
+    x+"px";
+
+
+  const pr=
+    getPlayerRect();
+
+  const cr=
+    getElRect(coin);
+
+
+  if(overlap(pr,cr)){
+
+    score++;
+
+    scoreText.innerText=
+      "Score: "+score;
+
+    updateHighScore();
+
+    sound(
+      800,
+      .10,
+      "sine"
+    );
+
+    coin.remove();
+
+    coin=createCoin();
+
+  }
+
+
+  if(x<-70){
+
+    coin.remove();
+
+    coin=createCoin();
+
+  }
+
+}
+
+
+/* MAIN OBSTACLE */
+
+function updateMainObstacle(dt){
+
+  if(!obstacle)
+    return;
+
+  let x=
+    parseFloat(
+      obstacle.style.left
+    );
+
+  x-=gameSpeed*dt;
+
+  obstacle.style.left=
+    x+"px";
+
+
+  const pr=
+    getPlayerRect();
+
+  const or_=
+    getElRect(obstacle);
+
+
+  if(
+    !obstacleHit &&
+    overlap(pr,or_)
+  ){
+
+    obstacleHit=true;
+
+    takeDamage();
+
+  }
+
+
+  if(x<-150){
+
+    obstacle.remove();
+
+    obstacle=createObstacle();
+
+    obstacleHit=false;
+
+
+    /*
+      Extra obstacle only after score 8.
+      Chance increases slightly with level.
+    */
+
+    let extraChance=
+      Math.min(
+        .18+(level*.01),
+        .30
+      );
+
+    if(
+      score>8 &&
+      Math.random()<extraChance
+    ){
+
+      if(extraSpawnTimer)
+        clearTimeout(
+          extraSpawnTimer
+        );
+
+      extraSpawnTimer=
+        setTimeout(
+          function(){
+
+            extraSpawnTimer=null;
+
+            createExtraObstacle();
+
+          },
+          550+Math.random()*350
+        );
+
+    }
+
+  }
+
+}
+
+
+/* EXTRA OBSTACLES */
+
+function updateExtraObstacles(dt){
+
+  for(
+    let i=extraObstacles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const o=
+      extraObstacles[i];
+
+    if(!o.parentNode){
+
+      extraObstacles.splice(i,1);
+
+      continue;
+
+    }
+
+
+    let x=
+      parseFloat(
+        o.style.left
+      );
+
+    x-=gameSpeed*dt;
+
+    o.style.left=
+      x+"px";
+
+
+    const pr=
+      getPlayerRect();
+
+    const or_=
+      getElRect(o);
+
+
+    if(
+      o.dataset.hit!=="1" &&
+      overlap(pr,or_)
+    ){
+
+      o.dataset.hit="1";
+
+      takeDamage();
+
+    }
+
+
+    if(x<-150){
+
+      o.remove();
+
+      extraObstacles.splice(i,1);
+
+    }
+
+  }
+
+}
+
+
+/* GAME LOOP */
+
+function gameLoop(timestamp){
+
+  if(!gameRunning){
+
+    animationStarted=false;
+
+    return;
+
+  }
+
+
+  let dt=
+    (timestamp-lastTime)/
+    16.6667;
+
+
+  if(
+    !isFinite(dt) ||
+    dt<0
+  ){
+
+    dt=1;
+
+  }
+
+
+  dt=
+    Math.min(dt,3);
+
+  lastTime=timestamp;
+
+
+  if(!paused){
+
+    /* PLAYER */
+
+    playerY+=
+      velocityY*dt;
+
+    velocityY-=
+      gravity*dt;
+
+
+    if(playerY<=groundY){
+
+      playerY=groundY;
+
+      velocityY=0;
+
+      jumpsUsed=0;
+
+    }
+
+
+    character.style.transform=
+      "translateY("+
+      (-playerY)+
+      "px)";
+
+
+    /* SYSTEMS */
+
+    updateDifficulty();
+
+    updateCoin(dt);
+
+    updateMainObstacle(dt);
+
+    updateExtraObstacles(dt);
+
+  }
+
+
+  requestAnimationFrame(
+    gameLoop
+  );
+
+}
+
+
+/* GAME OVER */
+
+function endGame(){
+
+  /*
+    এই score-টা আগে save করার
+    আগেই record কিনা সেটা ধরছি।
+  */
+
+  const wasNewRecord=
+    score>highScore;
+
+
+  if(wasNewRecord){
+
+    highScore=score;
+
+    saveHighScore(
+      highScore
+    );
+
+    highScoreText.innerText=
+      "🏆 High Score: "+
+      highScore;
+
+  }
+
+
+  gameRunning=false;
+
+  paused=false;
+
+
+  finalScore.innerText=
+    "🎯 Score: "+score;
+
+  bestScore.innerText=
+    "🏆 Best Score: "+
+    highScore;
+
+
+  /*
+    FIXED:
+    শুধু সত্যিই নতুন record হলে
+    NEW RECORD দেখাবে।
+  */
+
+  newRecord.style.display=
+    wasNewRecord
+      ? "block"
+      : "none";
+
+
+  gameOverEl.style.display=
+    "block";
+
+  pauseScreen.style.display=
+    "none";
+
+
+  sound(
+    80,
+    .5,
+    "sawtooth"
+  );
+
+}
+
+
+/* PREVENT SCREEN SCROLL */
+
+document.addEventListener(
+  "touchmove",
+  function(e){
+
+    e.preventDefault();
+
+  },
+  {passive:false}
+);
+
+</script>
+
+</body>
+</html>
